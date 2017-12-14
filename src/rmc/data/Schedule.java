@@ -64,7 +64,6 @@ public class Schedule implements Cloneable {
 
 		List<TeamInfo> finalStandings = new ArrayList<TeamInfo>(teams.values());
 		finalStandings.sort(new StandingsComparator());
-		finalStandings.removeIf(t -> t.getTeamName().equals("Snicker-Snack"));
 
 		List<String> topTeamNames = new ArrayList<String>();
 		for (TeamInfo topTeamInfo : finalStandings.subList(0, numOfTeams)) {
