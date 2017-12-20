@@ -1,9 +1,12 @@
 package rmc.main;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.File;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map.Entry;
+
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
 
 public class RebblMonteCarlo {
 
@@ -17,13 +20,12 @@ public class RebblMonteCarlo {
 		String fileName = args[0];
 		Integer playoffSpots = Integer.valueOf(args[1]);
 
-		FileReader fixtureFile = new FileReader(fileName);
-		BufferedReader fileStream = new BufferedReader(fixtureFile);
+		File fixtureFile = new File(fileName);
+		CSVParser fixtureParser = CSVParser.parse(fixtureFile, Charset.defaultCharset(), CSVFormat.EXCEL);
 
-		List<Entry<String, Double>> sortedPercentage = MonteCarloRunner.run(fileStream, playoffSpots, SIM_NUMBER);
+		List<Entry<String, Double>> sortedPercentage = MonteCarloRunner.run(fixtureParser, playoffSpots, SIM_NUMBER);
 
-		fileStream.close();
-		fixtureFile.close();
+		fixtureParser.close();
 
 		for (Entry<String, Double> teamEntry : sortedPercentage) {
 			System.out.printf("%30s | %.3f%%%n", teamEntry.getKey(), teamEntry.getValue());
