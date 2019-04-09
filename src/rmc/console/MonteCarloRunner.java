@@ -1,4 +1,4 @@
-package rmc.main;
+package rmc.console;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,6 +13,7 @@ import org.apache.commons.csv.CSVRecord;
 
 import rmc.data.MatchResult;
 import rmc.data.Schedule;
+import rmc.engines.DranarPredictiveEngine;
 
 public class MonteCarloRunner {
 
@@ -41,7 +42,7 @@ public class MonteCarloRunner {
 
 		for (int i = 0; i < simNumber; i++) {
 			Schedule simSchedule = (Schedule) baseSchedule.clone();
-			simSchedule.fillMissingScores();
+			simSchedule.fillMissingScores(new DranarPredictiveEngine());
 			List<String> playoffTeams = simSchedule.getTopTeams(Integer.valueOf(playoffSpots));
 			allPlayoffTeams.addAll(playoffTeams);
 		}

@@ -1,4 +1,4 @@
-package rmc.main;
+package rmc.console;
 
 import java.io.File;
 import java.nio.charset.Charset;

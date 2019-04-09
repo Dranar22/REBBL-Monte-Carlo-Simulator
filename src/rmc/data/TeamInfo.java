@@ -5,8 +5,10 @@ import java.util.Set;
 
 public class TeamInfo {
 	private String teamName;
-	private int tdDiff = 0;
+	private int tdsScored = 0;
+	private int tdsAgainst = 0;
 	private int standingPoints = 0;
+	private int gamesPlayed = 0;
 	private int losses = 0;
 	private Set<String> defeatedTeams = new HashSet<String>();
 
@@ -18,19 +20,29 @@ public class TeamInfo {
 		return teamName;
 	}
 
-	public void addWin(int diff, String teamName) {
-		tdDiff += diff;
+	public void addWin(int tdsScored, int tdsAgainst, String teamName) {
+		assert (tdsScored > tdsAgainst);
+		this.tdsScored += tdsScored;
+		this.tdsAgainst += tdsAgainst;
 		standingPoints += 3;
+		gamesPlayed++;
 		defeatedTeams.add(teamName);
 	}
 
-	public void addLoss(int diff) {
-		tdDiff -= Math.abs(diff);
+	public void addLoss(int tdsScored, int tdsAgainst) {
+		assert (tdsScored < tdsAgainst);
+		this.tdsScored += tdsScored;
+		this.tdsAgainst += tdsAgainst;
 		losses++;
+		gamesPlayed++;
 	}
 
-	public void addTie() {
+	public void addTie(int tdsScored, int tdsAgainst) {
+		assert (tdsScored == tdsAgainst);
+		this.tdsScored += tdsScored;
+		this.tdsAgainst += tdsAgainst;
 		standingPoints += 1;
+		gamesPlayed++;
 	}
 
 	public int getStandingPoints() {
@@ -38,7 +50,15 @@ public class TeamInfo {
 	}
 
 	public int getTDDifferential() {
-		return tdDiff;
+		return tdsScored - tdsAgainst;
+	}
+
+	public int getTDsScored() {
+		return tdsScored;
+	}
+
+	public int getTDsGiven() {
+		return tdsAgainst;
 	}
 
 	public int getLossCount() {
@@ -47,5 +67,9 @@ public class TeamInfo {
 
 	public boolean wasTeamDefeated(String teamName) {
 		return defeatedTeams.contains(teamName);
+	}
+
+	public int getGamesPlayed() {
+		return gamesPlayed;
 	}
 }

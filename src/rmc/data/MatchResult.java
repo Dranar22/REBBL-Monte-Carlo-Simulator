@@ -6,6 +6,7 @@ public class MatchResult implements Cloneable {
 	private String teamTwo;
 	private int scoreOne = -1;
 	private int scoreTwo = -1;
+	private boolean processed = false;
 
 	public MatchResult(String teamOne, int scoreOne, int scoreTwo, String teamTwo) {
 		this.teamOne = teamOne;
@@ -45,6 +46,14 @@ public class MatchResult implements Cloneable {
 
 	public boolean hasScores() {
 		return ((scoreOne != -1) && (scoreTwo != -1));
+	}
+
+	public boolean isProcessed() {
+		return processed;
+	}
+
+	public void setProcessed() {
+		processed = true;
 	}
 
 	@Override
