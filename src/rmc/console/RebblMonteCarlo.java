@@ -23,7 +23,7 @@ public class RebblMonteCarlo {
 		File fixtureFile = new File(fileName);
 		CSVParser fixtureParser = CSVParser.parse(fixtureFile, Charset.defaultCharset(), CSVFormat.EXCEL);
 
-		List<Entry<String, Double>> sortedPercentage = MonteCarloRunner.run(fixtureParser, playoffSpots, SIM_NUMBER);
+		List<Entry<String, Double>> sortedPercentage = MonteCarloConsoleRunner.run(fixtureParser, playoffSpots, SIM_NUMBER);
 
 		fixtureParser.close();
 

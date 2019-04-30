@@ -10,6 +10,11 @@ public class RandomUtils {
 		return from + rand.nextInt(to - from + 1);
 	}
 
+	public static double rollOneHundred() {
+		Random rand = new Random();
+		return rand.nextDouble() * 100.0;
+	}
+
 	public static boolean flipCoin() {
 		Random rand = new Random();
 		return rand.nextBoolean();

@@ -1,43 +1,20 @@
 package rmc.console;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
 
-import rmc.data.MatchResult;
 import rmc.data.Schedule;
 import rmc.engines.DranarPredictiveEngine;
 
-public class MonteCarloRunner {
+public class MonteCarloConsoleRunner {
 
 	public static List<Entry<String, Double>> run(CSVParser fixtureParser, int playoffSpots, long simNumber)
 			throws Exception {
-		Schedule baseSchedule = new Schedule();
-		for (CSVRecord fixture : fixtureParser) {
-			String teamName1 = fixture.get(0);
-			String teamName2 = fixture.get(3);
-			String score1 = fixture.get(1);
-			String score2 = fixture.get(2);
-
-			if (!teamName1.isEmpty() && !teamName2.isEmpty()) {
-				if (score1.isEmpty() || score2.isEmpty()) {
-					baseSchedule.addResult(new MatchResult(teamName1, teamName2));
-				}
-				else {
-					baseSchedule.addResult(
-							new MatchResult(teamName1, Integer.valueOf(score1), Integer.valueOf(score2), teamName2));
-				}
-
-			}
-		}
-
+		Schedule baseSchedule = new Schedule(fixtureParser);
 		List<String> allPlayoffTeams = new ArrayList<String>();
 
 		for (int i = 0; i < simNumber; i++) {

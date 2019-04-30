@@ -1,9 +1,9 @@
 package rmc.data;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 
 import javafx.util.Pair;
 import rmc.engines.AbstractMonteCarloEngine;
@@ -13,6 +13,28 @@ public class Schedule implements Cloneable {
 
 	private List<MatchResult> gameList = new ArrayList<MatchResult>();
 	private Map<String, TeamInfo> teams = new HashMap<String, TeamInfo>();
+	private List<TeamInfo> finalStandings = null;
+
+	public Schedule() {}
+
+	public Schedule(CSVParser fileParser) {
+		for (CSVRecord fixture : fileParser) {
+			String teamName1 = fixture.get(0);
+			String teamName2 = fixture.get(3);
+			String score1 = fixture.get(1);
+			String score2 = fixture.get(2);
+
+			if (!teamName1.isEmpty() && !teamName2.isEmpty()) {
+				if (score1.isEmpty() || score2.isEmpty()) {
+					addResult(new MatchResult(teamName1, teamName2));
+				}
+				else {
+					addResult(new MatchResult(teamName1, Integer.valueOf(score1), Integer.valueOf(score2), teamName2));
+				}
+
+			}
+		}
+	}
 
 	public void addResult(MatchResult result) {
 		gameList.add(result);
@@ -73,17 +95,30 @@ public class Schedule implements Cloneable {
 	}
 
 	public List<String> getTopTeams(int numOfTeams) {
-		for (MatchResult result : gameList) {
-			if (!result.isProcessed()) {
-				processResult(result);
+		if (finalStandings == null) {
+			for (MatchResult result : gameList) {
+				if (!result.isProcessed()) {
+					processResult(result);
+				}
 			}
-		}
 
-		List<TeamInfo> finalStandings = new ArrayList<TeamInfo>(teams.values());
-		finalStandings.sort(new StandingsComparator());
+			finalStandings = new ArrayList<TeamInfo>(teams.values());
+			finalStandings.sort(new StandingsComparator());
+		}
 
 		List<String> topTeamNames = new ArrayList<String>();
 		for (TeamInfo topTeamInfo : finalStandings.subList(0, numOfTeams)) {
+			topTeamNames.add(topTeamInfo.getTeamName());
+		}
+		return topTeamNames;
+	}
+
+	public List<String> getTeamNames() {
+		List<TeamInfo> currentStandings = new ArrayList<TeamInfo>(teams.values());
+		currentStandings.sort(new StandingsComparator());
+
+		List<String> topTeamNames = new ArrayList<String>();
+		for (TeamInfo topTeamInfo : currentStandings) {
 			topTeamNames.add(topTeamInfo.getTeamName());
 		}
 		return topTeamNames;
@@ -96,5 +131,19 @@ public class Schedule implements Cloneable {
 			clonedSchedule.addResult((MatchResult) result.clone());
 		}
 		return clonedSchedule;
+	}
+
+	public Map<String, ManualGamePrediction> getManualPredictionMap() {
+		Map<String, ManualGamePrediction> predictionMap = new LinkedHashMap<String, ManualGamePrediction>();
+		for (MatchResult result : gameList) {
+			if (!result.hasScores()) {
+				TeamInfo teamOne = teams.get(result.getTeamOne());
+				TeamInfo teamTwo = teams.get(result.getTeamTwo());
+				ManualGamePrediction predictionInfo = new ManualGamePrediction(teamOne.getTeamName(),
+						teamTwo.getTeamName());
+				predictionMap.put(predictionInfo.getMatchKey(), predictionInfo);
+			}
+		}
+		return predictionMap;
 	}
 }

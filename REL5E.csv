@@ -64,24 +64,24 @@ Snicker-Snack,0,1,The Bad QB Squad
 MJ Dance Squad,1,2,Film Flayers
 Murderland Plague Flies,2,1,Midsummer Nightmares
 Snicker-Snack,0,1,"Eat, Prey, Shove"
-MJ Dance Squad,,,Ulthuan Sea Serpents
-Before Catholicism,,,Violaceous Violators
+MJ Dance Squad,1,0,Ulthuan Sea Serpents
+Before Catholicism,1,2,Violaceous Violators
 Less Sucky Blood Suckerz,1,0,Sidestreet Chaps
 Film Flayers,1,0,Carolina Cruise
 The Bad QB Squad,1,0,Respectable Gents
-"Eat, Prey, Shove",,,Midsummer Nightmares
-Sidestreet Chaps,,,Violaceous Violators
+"Eat, Prey, Shove",2,3,Midsummer Nightmares
+Sidestreet Chaps,1,0,Violaceous Violators
 Carolina Cruise,0,1,Ulthuan Sea Serpents
 Respectable Gents,1,0,Snicker-Snack
-The Bad QB Squad,,,MJ Dance Squad
-Film Flayers,,,Before Catholicism
-Less Sucky Blood Suckerz,,,Murderland Plague Flies
-Before Catholicism,,,"Eat, Prey, Shove"
-Murderland Plague Flies,,,MJ Dance Squad
+The Bad QB Squad,0,2,MJ Dance Squad
+Film Flayers,3,1,Before Catholicism
+Less Sucky Blood Suckerz,1,0,Murderland Plague Flies
+Before Catholicism,0,1,"Eat, Prey, Shove"
+Murderland Plague Flies,0,2,MJ Dance Squad
 Less Sucky Blood Suckerz,1,0,Snicker-Snack
 Film Flayers,,,Ulthuan Sea Serpents
-The Bad QB Squad,,,Violaceous Violators
-Respectable Gents,,,Midsummer Nightmares
+The Bad QB Squad,0,2,Violaceous Violators
+Respectable Gents,0,3,Midsummer Nightmares
 Carolina Cruise,0,1,Sidestreet Chaps
 Violaceous Violators,,,"Eat, Prey, Shove"
 Ulthuan Sea Serpents,,,Midsummer Nightmares
