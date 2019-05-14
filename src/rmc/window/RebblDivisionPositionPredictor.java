@@ -366,7 +366,7 @@ public class RebblDivisionPositionPredictor {
 					catch (Exception e1) {
 						JOptionPane.showMessageDialog(PredictorFrame.this,
 								"This shouldn't happen!\n\nTell Dranar the exception was a "
-										+ e1.getClass().getSimpleName(),
+										+ e1.getClass().getSimpleName() + "\n\nThis may be caused by too many sims.",
 								"Oops", JOptionPane.ERROR_MESSAGE);
 						e1.printStackTrace();
 					}
