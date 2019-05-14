@@ -19,6 +19,7 @@ import org.apache.commons.csv.CSVParser;
 import rmc.data.ManualGamePrediction;
 import rmc.data.Schedule;
 import rmc.engines.*;
+import rmc.exception.TooManyTeamsException;
 import rmc.window.component.RebblDivisionPredictionTable;
 
 public class RebblDivisionPositionPredictor {
@@ -65,6 +66,7 @@ public class RebblDivisionPositionPredictor {
 		Map<String, ManualGamePrediction> predictionMap;
 		RebblDivisionPredictionTable dataTable;
 
+		JButton runButton;
 		JProgressBar progressBar;
 
 		public PredictorFrame() {
@@ -221,7 +223,7 @@ public class RebblDivisionPositionPredictor {
 			challengerCupField.setHorizontalAlignment(JTextField.CENTER);
 			challengerCupSpots.setLabelFor(challengerCupField);
 
-			JButton runButton = new JButton("   Run   ");
+			runButton = new JButton("   Run   ");
 			runButton.setAction(new AbstractAction("   Run   ") {
 
 				@Override
@@ -334,9 +336,19 @@ public class RebblDivisionPositionPredictor {
 								e1.printStackTrace();
 							}
 							catch (CloneNotSupportedException e1) {
-								JOptionPane.showMessageDialog(PredictorFrame.this, "This shouldn't happen!", "Oops",
+								JOptionPane.showMessageDialog(PredictorFrame.this,
+										"Clone Not Supported\n\nTell Dranar about this!", "Oops",
 										JOptionPane.ERROR_MESSAGE);
 								e1.printStackTrace();
+							}
+							catch (TooManyTeamsException e) {
+								JOptionPane.showMessageDialog(PredictorFrame.this,
+										"Your schedule file has too many teams in it!\n"
+												+ "This may be due to drops or name corruption when creating the schedule file.\n\n"
+												+ "  -If your division had drops, the names of the dropped teams should be replaced with the new teams name.\n"
+												+ "  -If the team names in the table have odd characters in them, open the csv file in Notepad or Wordpad and re-save it.",
+										"Too Many Teams!", JOptionPane.ERROR_MESSAGE);
+								e.printStackTrace();
 							}
 
 							return null;
@@ -346,16 +358,20 @@ public class RebblDivisionPositionPredictor {
 					progressBar.setString("Running...");
 					progressBar.setStringPainted(true);
 					progressBar.setIndeterminate(true);
-					backgroundTask.execute();
+					runButton.setEnabled(false);
+					PredictorFrame.this.repaint();
 					try {
-						backgroundTask.get();
+						backgroundTask.run();
 					}
 					catch (Exception e1) {
-						JOptionPane.showMessageDialog(PredictorFrame.this, "This shouldn't happen!", "Oops",
-								JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(PredictorFrame.this,
+								"This shouldn't happen!\n\nTell Dranar the exception was a "
+										+ e1.getClass().getSimpleName(),
+								"Oops", JOptionPane.ERROR_MESSAGE);
 						e1.printStackTrace();
 					}
 					finally {
+						runButton.setEnabled(true);
 						progressBar.setStringPainted(false);
 						progressBar.setIndeterminate(false);
 					}

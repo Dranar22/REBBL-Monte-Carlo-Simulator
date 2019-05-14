@@ -7,6 +7,7 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
 
 import rmc.data.Schedule;
+import rmc.exception.TooManyTeamsException;
 
 public class RebblDivisionPredictionTable extends JTable {
 
@@ -41,7 +42,8 @@ public class RebblDivisionPredictionTable extends JTable {
 		((PredictionTableModel) getModel()).setInitialSchedule(initSchedule);
 	}
 
-	public void setScheduleData(List<Schedule> scheduleData, int playoffNum, int challengerNum) {
+	public void setScheduleData(List<Schedule> scheduleData, int playoffNum, int challengerNum)
+			throws TooManyTeamsException {
 		((PredictionTableModel) getModel()).setScheduleData(scheduleData, playoffNum, challengerNum);
 	}
 
@@ -66,12 +68,18 @@ public class RebblDivisionPredictionTable extends JTable {
 			fireTableDataChanged();
 		}
 
-		public void setScheduleData(List<Schedule> scheduleData, int playoffNum, int challengerNum) {
+		public void setScheduleData(List<Schedule> scheduleData, int playoffNum, int challengerNum)
+				throws TooManyTeamsException {
 			clearPredictionData();
 			int simNumber = scheduleData.size();
 
 			for (Schedule schedule : scheduleData) {
 				List<String> teamNames = schedule.getTeamNames();
+
+				if (teamNames.size() > 14) {
+					throw new TooManyTeamsException();
+				}
+
 				List<String> ordering = schedule.getTopTeams(teamNames.size());
 
 				for (int x = 0; x < teamNames.size(); x++) {
