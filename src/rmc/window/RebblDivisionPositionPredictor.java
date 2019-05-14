@@ -22,7 +22,7 @@ import rmc.engines.*;
 import rmc.window.component.RebblDivisionPredictionTable;
 
 public class RebblDivisionPositionPredictor {
-	private final static int SIM_NUMBER = 100000;
+	private final static int DEFAULT_SIM_NUMBER = 100000;
 
 	private final static String ALL_WORLDS = "All";
 	private final static String DRANAR_PREDICTION = "Dranar";
@@ -57,6 +57,7 @@ public class RebblDivisionPositionPredictor {
 
 		JTextField fileNameField;
 		ButtonGroup engineSelection;
+		JTextField simNumberField;
 		JTextField playoffSpotsField;
 		JTextField challengerCupField;
 
@@ -203,6 +204,11 @@ public class RebblDivisionPositionPredictor {
 			optionsAndRunPanel.setLayout(new FlowLayout());
 			optionsAndRunPanel.setBorder(BorderFactory.createTitledBorder("Running Options"));
 
+			JLabel simNumberLabel = new JLabel("Number of Sims to Perform:");
+			simNumberField = new JTextField(String.valueOf(DEFAULT_SIM_NUMBER));
+			simNumberField.setHorizontalAlignment(JTextField.CENTER);
+			simNumberLabel.setLabelFor(playoffSpotsField);
+
 			JLabel playoffSpots = new JLabel("Number of Playoff Spots:");
 			playoffSpotsField = new JTextField(2);
 			playoffSpotsField.setText("0");
@@ -224,6 +230,25 @@ public class RebblDivisionPositionPredictor {
 					if (scheduleFile == null) {
 						JOptionPane.showMessageDialog(PredictorFrame.this,
 								"Please specify a schedule file before running!", "No file set",
+								JOptionPane.ERROR_MESSAGE);
+						return;
+					}
+
+					int simNum;
+					try {
+						String simNumberText = simNumberField.getText();
+						if (simNumberText == null) {
+							JOptionPane.showMessageDialog(PredictorFrame.this,
+									"Please specify a number of Playoff spots!", "Settings error",
+									JOptionPane.ERROR_MESSAGE);
+							return;
+						}
+
+						simNum = Integer.valueOf(simNumberText);
+					}
+					catch (NumberFormatException ne) {
+						JOptionPane.showMessageDialog(PredictorFrame.this,
+								"Your value for Playoff Spots is not a number!", "Settings error",
 								JOptionPane.ERROR_MESSAGE);
 						return;
 					}
@@ -293,7 +318,7 @@ public class RebblDivisionPositionPredictor {
 								Schedule baseSchedule = new Schedule(fixtureParser);
 
 								List<Schedule> schedules = new ArrayList<Schedule>();
-								for (int i = 0; i < SIM_NUMBER; i++) {
+								for (int i = 0; i < simNum; i++) {
 									Schedule simSchedule = (Schedule) baseSchedule.clone();
 									simSchedule.fillMissingScores(engine);
 									schedules.add(simSchedule);
@@ -337,6 +362,9 @@ public class RebblDivisionPositionPredictor {
 				}
 			});
 
+			optionsAndRunPanel.add(simNumberLabel);
+			optionsAndRunPanel.add(simNumberField);
+			optionsAndRunPanel.add(Box.createHorizontalStrut(24));
 			optionsAndRunPanel.add(playoffSpots);
 			optionsAndRunPanel.add(playoffSpotsField);
 			optionsAndRunPanel.add(Box.createHorizontalStrut(24));

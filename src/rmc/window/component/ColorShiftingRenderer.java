@@ -7,7 +7,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 public class ColorShiftingRenderer extends DefaultTableCellRenderer {
 
 	private static Color GREEN = new Color(175, 255, 175);
-	private static Color RED = new Color(255, 200, 200);
+	private static Color RED = new Color(255, 220, 220);
 	private static Color YELLOW = new Color(255, 255, 210);
 
 	public ColorShiftingRenderer() {
