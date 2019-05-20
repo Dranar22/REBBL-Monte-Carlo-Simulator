@@ -20,6 +20,7 @@ import rmc.data.ManualGamePrediction;
 import rmc.data.Schedule;
 import rmc.engines.*;
 import rmc.exception.TooManyTeamsException;
+import rmc.utils.ExportUtil;
 import rmc.window.component.RebblDivisionPredictionTable;
 
 public class RebblDivisionPositionPredictor {
@@ -62,7 +63,10 @@ public class RebblDivisionPositionPredictor {
 		JTextField playoffSpotsField;
 		JTextField challengerCupField;
 
+		JTextField rebblNetSelection;
+
 		File scheduleFile = null;
+		Schedule initSchedule = null;
 		Map<String, ManualGamePrediction> predictionMap;
 		RebblDivisionPredictionTable dataTable;
 
@@ -90,7 +94,7 @@ public class RebblDivisionPositionPredictor {
 
 			pack();
 
-			setSize(900, 490);
+			setSize(900, 520);
 
 			setLocationRelativeTo(null);
 		}
@@ -98,15 +102,17 @@ public class RebblDivisionPositionPredictor {
 		private void addFileSelectorPanel() {
 			JPanel fileSelectorPanel = new JPanel();
 
-			fileSelectorPanel.setLayout(new BorderLayout(5, 5));
+			fileSelectorPanel.setLayout(new BoxLayout(fileSelectorPanel, BoxLayout.Y_AXIS));
 			fileSelectorPanel.setBorder(BorderFactory.createTitledBorder("Schedule File Selection"));
 
+			JPanel localSelectorPanel = new JPanel();
+			localSelectorPanel.setLayout(new BorderLayout(5, 5));
 			fileNameField = new JTextField();
 			fileNameField.setEditable(false);
-			fileSelectorPanel.add(fileNameField, BorderLayout.CENTER);
+			localSelectorPanel.add(fileNameField, BorderLayout.CENTER);
 
-			JButton fileSelectorButton = new JButton("Open...");
-			fileSelectorButton.setAction(new AbstractAction("Open...") {
+			JButton fileSelectorButton = new JButton("Local...");
+			fileSelectorButton.setAction(new AbstractAction("Local...") {
 
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -117,12 +123,13 @@ public class RebblDivisionPositionPredictor {
 						scheduleFile = fc.getSelectedFile();
 						if (scheduleFile != null) {
 							fileNameField.setText(scheduleFile.getAbsolutePath());
+							rebblNetSelection.setText("");
 
 							CSVParser fixtureParser;
 							try {
 								fixtureParser = CSVParser.parse(scheduleFile, Charset.defaultCharset(),
 										CSVFormat.EXCEL);
-								Schedule initSchedule = new Schedule(fixtureParser);
+								initSchedule = new Schedule(fixtureParser);
 								predictionMap = initSchedule.getManualPredictionMap();
 								dataTable.setInitialSchedule(initSchedule);
 							}
@@ -140,9 +147,70 @@ public class RebblDivisionPositionPredictor {
 				}
 			});
 
-			fileSelectorPanel.add(fileSelectorButton, BorderLayout.WEST);
-			fileSelectorPanel.setMaximumSize(new Dimension(Short.MAX_VALUE, 24));
+			localSelectorPanel.add(fileSelectorButton, BorderLayout.WEST);
+			localSelectorPanel.setMaximumSize(new Dimension(Short.MAX_VALUE, 24));
 
+			JPanel onlineSelectorPanel = new JPanel();
+			onlineSelectorPanel.setLayout(new BorderLayout(5, 5));
+
+			JButton onlineSelectorButton = new JButton("Online...");
+			onlineSelectorButton.setAction(new AbstractAction("Online...") {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					RebblNetSelectionDialog dialog = new RebblNetSelectionDialog(PredictorFrame.this);
+					dialog.setVisible(true);
+
+					if (dialog.wasSaveSelected()) {
+						fileNameField.setText("");
+						rebblNetSelection.setText(dialog.getDivisionName());
+						initSchedule = dialog.getDownloadedSchedule();
+						dataTable.setInitialSchedule(initSchedule);
+					}
+				}
+			});
+
+			JButton exportButton = new JButton("Export...");
+			exportButton.setAction(new AbstractAction("Export...") {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					if (rebblNetSelection.getText() == null || rebblNetSelection.getText().isEmpty()) {
+						JOptionPane.showMessageDialog(PredictorFrame.this,
+								"You must download a file from rebbl.net first.", "No File Downloaded",
+								JOptionPane.ERROR_MESSAGE);
+						return;
+					}
+
+					JFileChooser fc = new JFileChooser();
+					fc.setSelectedFile(new File(rebblNetSelection.getText() + ".csv"));
+					int retValue = fc.showSaveDialog(SwingUtilities.getWindowAncestor(PredictorFrame.this));
+
+					if (retValue == JFileChooser.APPROVE_OPTION) {
+						File saveFileLocation = fc.getSelectedFile();
+						try {
+							ExportUtil.writeScheduleFile(initSchedule, saveFileLocation);
+						}
+						catch (IOException e1) {
+							JOptionPane.showMessageDialog(PredictorFrame.this,
+									"Error exporting file!\n\n" + e1.getLocalizedMessage(), "Exporting Error",
+									JOptionPane.ERROR_MESSAGE);
+						}
+					}
+
+				}
+			});
+
+			rebblNetSelection = new JTextField();
+			rebblNetSelection.setEditable(false);
+
+			onlineSelectorPanel.add(onlineSelectorButton, BorderLayout.WEST);
+			onlineSelectorPanel.add(rebblNetSelection, BorderLayout.CENTER);
+			onlineSelectorPanel.add(exportButton, BorderLayout.EAST);
+
+			fileSelectorPanel.add(localSelectorPanel);
+			fileSelectorPanel.add(Box.createVerticalStrut(5));
+			fileSelectorPanel.add(onlineSelectorPanel);
 			getContentPane().add(fileSelectorPanel);
 
 		}
@@ -229,7 +297,7 @@ public class RebblDivisionPositionPredictor {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 
-					if (scheduleFile == null) {
+					if (initSchedule == null) {
 						JOptionPane.showMessageDialog(PredictorFrame.this,
 								"Please specify a schedule file before running!", "No file set",
 								JOptionPane.ERROR_MESSAGE);
@@ -315,25 +383,14 @@ public class RebblDivisionPositionPredictor {
 						@Override
 						protected Void doInBackground() throws Exception {
 							try {
-								CSVParser fixtureParser = CSVParser.parse(scheduleFile, Charset.defaultCharset(),
-										CSVFormat.EXCEL);
-								Schedule baseSchedule = new Schedule(fixtureParser);
-
 								List<Schedule> schedules = new ArrayList<Schedule>();
 								for (int i = 0; i < simNum; i++) {
-									Schedule simSchedule = (Schedule) baseSchedule.clone();
+									Schedule simSchedule = (Schedule) initSchedule.clone();
 									simSchedule.fillMissingScores(engine);
 									schedules.add(simSchedule);
 								}
 
 								dataTable.setScheduleData(schedules, playoffNum, challengerNum);
-							}
-							catch (IOException e1) {
-								JOptionPane.showMessageDialog(PredictorFrame.this, "Error parsing file!",
-										"Parsing Error", JOptionPane.ERROR_MESSAGE);
-								fileNameField.setText("Error Parsing File");
-								scheduleFile = null;
-								e1.printStackTrace();
 							}
 							catch (CloneNotSupportedException e1) {
 								JOptionPane.showMessageDialog(PredictorFrame.this,
@@ -346,7 +403,8 @@ public class RebblDivisionPositionPredictor {
 										"Your schedule file has too many teams in it!\n"
 												+ "This may be due to drops or name corruption when creating the schedule file.\n\n"
 												+ "  -If your division had drops, the names of the dropped teams should be replaced with the new teams name.\n"
-												+ "  -If the team names in the table have odd characters in them, open the csv file in Notepad or Wordpad and re-save it.",
+												+ "  -If the team names in the table have odd characters in them, open the csv file in Notepad or Wordpad and re-save it.\n\n"
+												+ " For schedules that were downloaded from rebbl.net, you must export the file and do these changes manually.",
 										"Too Many Teams!", JOptionPane.ERROR_MESSAGE);
 								e.printStackTrace();
 							}
@@ -355,6 +413,7 @@ public class RebblDivisionPositionPredictor {
 						}
 					};
 
+					PredictorFrame.this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 					progressBar.setString("Running...");
 					progressBar.setStringPainted(true);
 					progressBar.setIndeterminate(true);
@@ -374,6 +433,7 @@ public class RebblDivisionPositionPredictor {
 						runButton.setEnabled(true);
 						progressBar.setStringPainted(false);
 						progressBar.setIndeterminate(false);
+						PredictorFrame.this.setCursor(Cursor.getDefaultCursor());
 					}
 				}
 			});

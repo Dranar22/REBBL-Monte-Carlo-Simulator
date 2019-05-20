@@ -5,11 +5,20 @@ import java.util.*;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
+import com.github.cliftonlabs.json_simple.JsonArray;
+import com.github.cliftonlabs.json_simple.JsonObject;
+
 import javafx.util.Pair;
 import rmc.engines.AbstractMonteCarloEngine;
 import rmc.utils.StandingsComparator;
 
 public class Schedule implements Cloneable {
+
+	private static final String HOME_TEAM = "homeTeam";
+	private static final String AWAY_TEAM = "awayTeam";
+	private static final String HOME_SCORE = "homeScore";
+	private static final String AWAY_SCORE = "awayScore";
+	private static final String NULL = "null";
 
 	private List<MatchResult> gameList = new ArrayList<MatchResult>();
 	private Map<String, TeamInfo> teams = new HashMap<String, TeamInfo>();
@@ -26,6 +35,27 @@ public class Schedule implements Cloneable {
 
 			if (!teamName1.isEmpty() && !teamName2.isEmpty()) {
 				if (score1.isEmpty() || score2.isEmpty()) {
+					addResult(new MatchResult(teamName1, teamName2));
+				}
+				else {
+					addResult(new MatchResult(teamName1, Integer.valueOf(score1), Integer.valueOf(score2), teamName2));
+				}
+
+			}
+		}
+	}
+
+	public Schedule(JsonArray scheduleJson) {
+		for (Object match : scheduleJson) {
+			JsonObject matchJson = (JsonObject) match;
+
+			String teamName1 = matchJson.containsKey(HOME_TEAM) ? String.valueOf(matchJson.get(HOME_TEAM)) : "";
+			String teamName2 = matchJson.containsKey(AWAY_TEAM) ? String.valueOf(matchJson.get(AWAY_TEAM)) : "";
+			String score1 = matchJson.containsKey(HOME_SCORE) ? String.valueOf(matchJson.get(HOME_SCORE)) : "";
+			String score2 = matchJson.containsKey(AWAY_SCORE) ? String.valueOf(matchJson.get(AWAY_SCORE)) : "";
+
+			if (!teamName1.isEmpty() && !teamName2.isEmpty()) {
+				if (score1.isEmpty() || score2.isEmpty() || score1.equals(NULL) || score2.equals(NULL)) {
 					addResult(new MatchResult(teamName1, teamName2));
 				}
 				else {
@@ -145,5 +175,9 @@ public class Schedule implements Cloneable {
 			}
 		}
 		return predictionMap;
+	}
+
+	public List<MatchResult> getAllMatches() {
+		return new ArrayList<MatchResult>(gameList);
 	}
 }

@@ -60,6 +60,8 @@ public class RebblDivisionPredictionTable extends JTable {
 		}
 
 		public void setInitialSchedule(Schedule initSchedule) {
+			gData = new Object[14][17];
+
 			List<String> teamNames = initSchedule.getTeamNames();
 			for (int x = 0; x < teamNames.size() && x < 14; x++) {
 				gData[x][0] = teamNames.get(x);
