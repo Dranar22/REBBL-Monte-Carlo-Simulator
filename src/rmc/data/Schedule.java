@@ -14,8 +14,8 @@ import rmc.utils.StandingsComparator;
 
 public class Schedule implements Cloneable {
 
-	private static final String HOME_TEAM = "homeTeam";
-	private static final String AWAY_TEAM = "awayTeam";
+	private static final String HOME_TEAM = "homeTeamName";
+	private static final String AWAY_TEAM = "awayTeamName";
 	private static final String HOME_SCORE = "homeScore";
 	private static final String AWAY_SCORE = "awayScore";
 	private static final String NULL = "null";
