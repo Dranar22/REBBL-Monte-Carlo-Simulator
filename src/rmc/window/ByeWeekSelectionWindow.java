@@ -14,7 +14,7 @@ public class ByeWeekSelectionWindow extends JDialog {
 	private List<String> selectedTeams;
 
 	public ByeWeekSelectionWindow(JFrame parent, List<String> teamNames, List<String> byeWeekTeams) {
-		super(parent, "rebbl.net Selector", true);
+		super(parent, "Bye Week Specification", true);
 
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
@@ -25,6 +25,7 @@ public class ByeWeekSelectionWindow extends JDialog {
 		listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
 
 		JCheckBoxList list = JCheckBoxList.createCheckBoxList(teamNames, byeWeekTeams);
+		list.setBorder(BorderFactory.createLoweredBevelBorder());
 
 		listPanel.add(list);
 
