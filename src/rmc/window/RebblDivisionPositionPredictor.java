@@ -24,7 +24,7 @@ import rmc.utils.ExportUtil;
 import rmc.window.component.RebblDivisionPredictionTable;
 
 public class RebblDivisionPositionPredictor {
-	private final static int DEFAULT_SIM_NUMBER = 100000;
+	private final static int DEFAULT_SIM_NUMBER = 10000;
 
 	private final static String ALL_WORLDS = "All";
 	private final static String DRANAR_PREDICTION = "Dranar";
@@ -68,9 +68,11 @@ public class RebblDivisionPositionPredictor {
 		File scheduleFile = null;
 		Schedule initSchedule = null;
 		Map<String, ManualGamePrediction> predictionMap;
+		List<String> byeWeeks = new ArrayList<String>();
 		RebblDivisionPredictionTable dataTable;
 
 		JButton runButton;
+		JButton byeWeekButton;
 		JProgressBar progressBar;
 
 		public PredictorFrame() {
@@ -130,8 +132,7 @@ public class RebblDivisionPositionPredictor {
 								fixtureParser = CSVParser.parse(scheduleFile, Charset.defaultCharset(),
 										CSVFormat.EXCEL);
 								initSchedule = new Schedule(fixtureParser);
-								predictionMap = initSchedule.getManualPredictionMap();
-								dataTable.setInitialSchedule(initSchedule);
+								loadInitialSchedule();
 							}
 							catch (IOException e1) {
 								JOptionPane.showMessageDialog(PredictorFrame.this, "Error parsing file!",
@@ -165,7 +166,7 @@ public class RebblDivisionPositionPredictor {
 						fileNameField.setText("");
 						rebblNetSelection.setText(dialog.getDivisionName());
 						initSchedule = dialog.getDownloadedSchedule();
-						dataTable.setInitialSchedule(initSchedule);
+						loadInitialSchedule();
 					}
 				}
 			});
@@ -213,6 +214,18 @@ public class RebblDivisionPositionPredictor {
 			fileSelectorPanel.add(onlineSelectorPanel);
 			getContentPane().add(fileSelectorPanel);
 
+		}
+
+		protected void loadInitialSchedule() {
+			predictionMap = initSchedule.getManualPredictionMap();
+			dataTable.setInitialSchedule(initSchedule);
+
+			List<String> teamNames = initSchedule.getTeamNames();
+			for (String name : teamNames) {
+				if (name.toLowerCase().startsWith("[admin]")) {
+					byeWeeks.add(name);
+				}
+			}
 		}
 
 		private void addEngineSelectorPanel() {
@@ -290,6 +303,31 @@ public class RebblDivisionPositionPredictor {
 			challengerCupField.setText("0");
 			challengerCupField.setHorizontalAlignment(JTextField.CENTER);
 			challengerCupSpots.setLabelFor(challengerCupField);
+
+			byeWeekButton = new JButton("Bye Weeks...");
+			byeWeekButton.setAction(new AbstractAction("Bye Weeks...") {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					if (initSchedule == null) {
+						JOptionPane.showMessageDialog(PredictorFrame.this,
+								"Please specify a schedule file before setting bye weeks!", "No file set",
+								JOptionPane.ERROR_MESSAGE);
+						return;
+					}
+
+					ByeWeekSelectionWindow dialog = new ByeWeekSelectionWindow(PredictorFrame.this,
+							initSchedule.getTeamNames(), byeWeeks);
+					dialog.setVisible(true);
+
+					if (dialog.wasSaveSelected()) {
+						byeWeeks.clear();
+						byeWeeks.addAll(dialog.getSelectedTeams());
+					}
+
+				}
+
+			});
 
 			runButton = new JButton("   Run   ");
 			runButton.setAction(new AbstractAction("   Run   ") {
@@ -378,6 +416,8 @@ public class RebblDivisionPositionPredictor {
 							break;
 					}
 
+					engine.setByeWeeks(byeWeeks);
+
 					SwingWorker<Void, Void> backgroundTask = new SwingWorker<Void, Void>() {
 
 						@Override
@@ -420,7 +460,7 @@ public class RebblDivisionPositionPredictor {
 					runButton.setEnabled(false);
 					PredictorFrame.this.repaint();
 					try {
-						backgroundTask.run();
+						backgroundTask.execute();
 					}
 					catch (Exception e1) {
 						JOptionPane.showMessageDialog(PredictorFrame.this,
@@ -446,6 +486,8 @@ public class RebblDivisionPositionPredictor {
 			optionsAndRunPanel.add(Box.createHorizontalStrut(24));
 			optionsAndRunPanel.add(challengerCupSpots);
 			optionsAndRunPanel.add(challengerCupField);
+			optionsAndRunPanel.add(Box.createHorizontalStrut(24));
+			optionsAndRunPanel.add(byeWeekButton);
 			optionsAndRunPanel.add(Box.createHorizontalStrut(24));
 			optionsAndRunPanel.add(runButton);
 
