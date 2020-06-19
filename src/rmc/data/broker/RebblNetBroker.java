@@ -106,6 +106,15 @@ public class RebblNetBroker {
 
 		JsonArray scheduleJson = Jsoner.deserialize(content.asString(), new JsonArray());
 
+		if (scheduleJson.isEmpty()) {
+			urlString = UrlEscapers.urlFragmentEscaper().escape(
+					REBBL_NET_BASE + "division/" + leagueName + " 2/" + seasonName + "/" + divisionName + "/slim/");
+
+			content = Request.Get(urlString).execute().returnContent();
+
+			scheduleJson = Jsoner.deserialize(content.asString(), new JsonArray());
+		}
+
 		Schedule schedule = new Schedule(scheduleJson);
 
 		return schedule;

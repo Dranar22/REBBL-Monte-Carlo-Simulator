@@ -134,7 +134,7 @@ public class RebblDivisionPositionPredictor {
 								initSchedule = new Schedule(fixtureParser);
 								loadInitialSchedule();
 							}
-							catch (IOException e1) {
+							catch (Exception e1) {
 								JOptionPane.showMessageDialog(PredictorFrame.this, "Error parsing file!",
 										"Parsing Error", JOptionPane.ERROR_MESSAGE);
 								fileNameField.setText("Error Parsing File");

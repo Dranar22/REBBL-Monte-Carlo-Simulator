@@ -4,11 +4,11 @@ import java.util.*;
 
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.lang3.tuple.Pair;
 
 import com.github.cliftonlabs.json_simple.JsonArray;
 import com.github.cliftonlabs.json_simple.JsonObject;
 
-import javafx.util.Pair;
 import rmc.engines.AbstractMonteCarloEngine;
 import rmc.utils.StandingsComparator;
 
@@ -24,7 +24,8 @@ public class Schedule implements Cloneable {
 	private Map<String, TeamInfo> teams = new HashMap<String, TeamInfo>();
 	private List<TeamInfo> finalStandings = null;
 
-	public Schedule() {}
+	public Schedule() {
+	}
 
 	public Schedule(CSVParser fileParser) {
 		for (CSVRecord fixture : fileParser) {
@@ -118,8 +119,8 @@ public class Schedule implements Cloneable {
 				TeamInfo teamOne = teams.get(result.getTeamOne());
 				TeamInfo teamTwo = teams.get(result.getTeamTwo());
 				Pair<Integer, Integer> scores = engine.getScoresForTeams(teamOne, teamTwo);
-				result.setScoreOne(scores.getKey());
-				result.setScoreTwo(scores.getValue());
+				result.setScoreOne(scores.getLeft());
+				result.setScoreTwo(scores.getRight());
 			}
 		}
 	}

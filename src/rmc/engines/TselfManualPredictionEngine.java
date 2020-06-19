@@ -2,7 +2,9 @@ package rmc.engines;
 
 import java.util.Map;
 
-import javafx.util.Pair;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+
 import rmc.data.ManualGamePrediction;
 import rmc.data.TeamInfo;
 import rmc.utils.RandomUtils;
@@ -21,16 +23,16 @@ public class TselfManualPredictionEngine extends AbstractMonteCarloEngine {
 		if (byeWeeks.contains(teamOne.getTeamName())) {
 			if (byeWeeks.contains(teamTwo.getTeamName())) {
 				// In case a div has two bye weeks.
-				return new Pair<Integer, Integer>(0, 0);
+				return new ImmutablePair<Integer, Integer>(0, 0);
 			}
 			else {
 				// First team is a bye week team, give the 1 score win to second team.
-				return new Pair<Integer, Integer>(0, 1);
+				return new ImmutablePair<Integer, Integer>(0, 1);
 			}
 		}
 		else if (byeWeeks.contains(teamTwo.getTeamName())) {
 			// Second team is a bye week.
-			return new Pair<Integer, Integer>(1, 0);
+			return new ImmutablePair<Integer, Integer>(1, 0);
 		}
 
 		String key = ManualGamePrediction.getMatchKey(teamOne.getTeamName(), teamTwo.getTeamName());
@@ -53,15 +55,15 @@ public class TselfManualPredictionEngine extends AbstractMonteCarloEngine {
 
 		if (result < teamOneBreakPoint) {
 			// Team One wins
-			return new Pair<Integer, Integer>(winningScore, losingScore);
+			return new ImmutablePair<Integer, Integer>(winningScore, losingScore);
 		}
 		else if (result > teamTwoBreakPoint) {
 			// Team Two Wins
-			return new Pair<Integer, Integer>(losingScore, winningScore);
+			return new ImmutablePair<Integer, Integer>(losingScore, winningScore);
 		}
 		else {
 			// Tie
-			return new Pair<Integer, Integer>(winningScore, winningScore);
+			return new ImmutablePair<Integer, Integer>(winningScore, winningScore);
 		}
 	}
 

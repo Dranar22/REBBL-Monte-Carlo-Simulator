@@ -3,7 +3,8 @@ package rmc.engines;
 import java.util.ArrayList;
 import java.util.List;
 
-import javafx.util.Pair;
+import org.apache.commons.lang3.tuple.Pair;
+
 import rmc.data.TeamInfo;
 
 public abstract class AbstractMonteCarloEngine {
